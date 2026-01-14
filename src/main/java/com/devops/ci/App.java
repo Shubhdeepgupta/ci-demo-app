@@ -6,6 +6,7 @@ package com.devops.ci;
  */
 public class App {
     public static void main(String[] args) {
-        System.out.println("Hello from CI learning project!");
+        System.out.println("Hello World!");
     }
 }
+
