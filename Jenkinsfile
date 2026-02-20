@@ -33,7 +33,7 @@ pipeline {
         }
     }
 
-    stage('Docker Build') {
+stage('Docker Build') {
     steps {
         sh 'docker build -t ci-demo-app:${BUILD_NUMBER} .'
     }
