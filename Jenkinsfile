@@ -6,6 +6,10 @@ pipeline {
         jdk 'jdk17'
     }
 
+    options {
+        timestamps()
+    }
+
     stages {
 
         stage('Checkout') {
@@ -41,7 +45,8 @@ pipeline {
             echo 'Build failed!'
         }
         always {
-            echo 'Pipeline finished.'
+            echo 'Cleaning workspace'
+            cleanWs()
         }
     }
 }
