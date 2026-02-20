@@ -33,6 +33,12 @@ pipeline {
         }
     }
 
+    stage('Docker Build') {
+    steps {
+        sh 'docker build -t ci-demo-app:${BUILD_NUMBER} .'
+    }
+}
+
     post {
         success {
             archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
