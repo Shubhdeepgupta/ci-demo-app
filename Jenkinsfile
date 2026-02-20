@@ -42,7 +42,7 @@ pipeline {
             echo 'Build completed successfully !!!'
         }
         failure {
-            echo 'Build is failed!'
+            echo 'Build failed!'
         }
         always {
             echo 'Cleaning workspace'
