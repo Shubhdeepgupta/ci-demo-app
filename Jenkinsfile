@@ -1,12 +1,48 @@
-post {
-    success {
-        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-        echo 'Build completed successfully!'
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven-3'
+        jdk 'jdk17'
     }
-    failure {
-        echo 'Build failed!'
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
     }
-    always {
-        echo 'Pipeline finished.'
+
+    post {
+        success {
+            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+        always {
+            echo 'Pipeline finished.'
+        }
     }
 }
