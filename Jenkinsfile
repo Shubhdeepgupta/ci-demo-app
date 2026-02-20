@@ -31,13 +31,13 @@ pipeline {
                 sh 'mvn package'
             }
         }
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t ci-demo-app:${BUILD_NUMBER} .'
+            }
+        }
     }
 
-stage('Docker Build') {
-    steps {
-        sh 'docker build -t ci-demo-app:${BUILD_NUMBER} .'
-    }
-}
 
     post {
         success {
