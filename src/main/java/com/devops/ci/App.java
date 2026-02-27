@@ -1,12 +1,14 @@
 package com.devops.ci;
 
-/**
- * Hello world!
- *
- */
 public class App {
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
+    public static void main(String[] args) throws Exception {
+
+        System.out.println("CI/CD Application Running...");
+
+        while(true) {
+            System.out.println("App Alive...");
+            Thread.sleep(5000);
+        }
+
     }
 }
-
