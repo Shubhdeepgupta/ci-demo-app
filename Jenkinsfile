@@ -1,4 +1,5 @@
 pipeline {
+
     agent any
 
     tools {
@@ -8,57 +9,45 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                sh 'mvn clean package'
             }
         }
 
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-
-        stage('Package') {
-            steps {
-                sh 'mvn package'
-            }
-        }
         stage('Docker Build') {
             steps {
-                sh 'docker build -t ci-demo-app:${BUILD_NUMBER} .'
+                sh '''
+                docker build -t ci-demo-app:${BUILD_NUMBER} .
+                '''
             }
         }
 
-	stage('Deploy') {
-    	    steps {
-        	sh '''
+        stage('Deploy') {
+            steps {
+                sh '''
                 docker stop ci-container || true
                 docker rm ci-container || true
-                docker run -d -p 8081:8080 --name ci-container ci-demo-app:${BUILD_NUMBER}
-        '''
-	    }
-	}
+
+                docker run -d \
+                --name ci-container \
+                -p 8081:8080 \
+                ci-demo-app:${BUILD_NUMBER}
+                '''
+            }
+        }
+
     }
 
-
     post {
+
         success {
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-            echo 'Build completed successfully!'
+            echo 'Deployment Successful'
         }
+
         failure {
-            echo 'Build failed!'
+            echo 'Deployment Failed'
         }
-        always {
-            echo 'Pipeline finished.'
-        }
+
     }
 }
