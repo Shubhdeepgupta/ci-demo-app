@@ -1,10 +1,14 @@
 pipeline {
 
-    agent any
+    agent { label 'mac' }
 
     tools {
         maven 'maven-3'
         jdk 'jdk17'
+    }
+
+    environment {
+        DOCKER_IMAGE = "shubhdeep06/ci-demo-app"
     }
 
     stages {
@@ -18,7 +22,31 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh '''
-                docker build -t ci-demo-app:${BUILD_NUMBER} .
+                docker build -t $DOCKER_IMAGE:${BUILD_NUMBER} .
+                docker tag $DOCKER_IMAGE:${BUILD_NUMBER} $DOCKER_IMAGE:latest
+                '''
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+                    sh '''
+                    echo $PASS | docker login -u $USER --password-stdin
+                    '''
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh '''
+                docker push $DOCKER_IMAGE:${BUILD_NUMBER}
+                docker push $DOCKER_IMAGE:latest
                 '''
             }
         }
@@ -32,7 +60,7 @@ pipeline {
                 docker run -d \
                 --name ci-container \
                 -p 8081:8080 \
-                ci-demo-app:${BUILD_NUMBER}
+                $DOCKER_IMAGE:${BUILD_NUMBER}
                 '''
             }
         }
@@ -42,11 +70,11 @@ pipeline {
     post {
 
         success {
-            echo 'Deployment Successful'
+            echo 'Production CI/CD Successful'
         }
 
         failure {
-            echo 'Deployment Failed'
+            echo 'CI/CD Failed'
         }
 
     }
