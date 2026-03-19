@@ -1,14 +1,20 @@
 package com.devops.ci;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+@RestController
 public class App {
-    public static void main(String[] args) throws Exception {
 
-        System.out.println("CI2 Application Running...");
+    public static void main(String[] args) {
+        SpringApplication.run(App.class, args);
+    }
 
-        while(true) {
-            System.out.println("App Alive...");
-            Thread.sleep(5000);
-        }
-
+    @GetMapping("/")
+    public String home() {
+        return "🚀 CI/CD Pipeline Working Successfully!";
     }
 }
