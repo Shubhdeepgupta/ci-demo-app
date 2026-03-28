@@ -4,12 +4,12 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "shubhdeep06/ci-demo-app"
-        ec2_ip = "3.27.61.243"
+        EC2_IP = "3.27.61.243"
     }
 
     stages {
 
-        stage('Build')
+        stage('Build' {
             steps { 
                 sh 'mvn clean package'
             }
