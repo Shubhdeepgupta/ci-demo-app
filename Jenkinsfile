@@ -27,26 +27,27 @@ pipeline {
         }
 
         stage('Deploy to EC2') {
-        steps {
-            sshagent(['ec2-key']) {
-                sh '''
-                ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "
-                docker stop ci-container || true &&
-                docker rm ci-container || true &&
-                docker pull $DOCKER_IMAGE:latest &&
-                docker run -d -p 8081:8080 --name ci-container $DOCKER_IMAGE:latest
-                "
-                '''
+            steps {
+                sshagent(['ec2-key']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "
+                    docker stop ci-container || true &&
+                    docker rm ci-container || true &&
+                    docker pull $DOCKER_IMAGE:latest &&
+                    docker run -d -p 8081:8080 --name ci-container $DOCKER_IMAGE:latest
+                    "
+                    '''
+                }
+             }
+        }
+
+        post {
+            success {
+                echo 'Deployment Successful !!'
+            }
+            failure {
+                echo 'Deployment Failed !!'
             }
         }
-    }
-
-    post {
-        success {
-            echo 'Deployment Successful !!'
-        }
-        failure {
-            echo 'Deployment Failed !!'
-        }
-    }
-}
+    
+}}
