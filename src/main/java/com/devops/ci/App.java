@@ -1,20 +1,38 @@
 package com.devops.ci;
+ 
+import com.sun.net.httpserver.HttpServer;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import java.io.IOException;
 
-@SpringBootApplication
-@RestController
+import java.io.OutputStream;
+
+import java.net.InetSocketAddress;
+ 
 public class App {
 
-    public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
+    public static void main(String[] args) throws IOException {
+
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+ 
+        server.createContext("/", exchange -> {
+
+            String response = "CI/CD App Running 🚀";
+
+            exchange.sendResponseHeaders(200, response.length());
+
+            OutputStream os = exchange.getResponseBody();
+
+            os.write(response.getBytes());
+
+            os.close();
+
+        });
+ 
+        server.start();
+
+        System.out.println("Server started on port 8080");
+
     }
 
-    @GetMapping("/")
-    public String home() {
-        return "🚀 CI/CD Pipeline Working Successfully!";
-    }
 }
+ 
