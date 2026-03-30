@@ -4,40 +4,34 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "shubhdeep06/ci-demo-app"
-        EC2_IP = "3.27.61.243"
+        ec2_ip = "3.27.61.243"
     }
 
     stages {
-
-        stage('Build') {
-            steps { 
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Docker Build & Push') {
-            steps {
-                sh '''
-                docker buildx build \
-                --platform linux/amd64 \
-                -t $DOCKER_IMAGE:latest \
-                --push .
-                '''
-            }
-        }
         stage('Deploy to EC2') {
             steps {
                 sshagent(['ec2-key']) {
-                    sh """
-                   ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "
-                   docker stop ci-container || true &&
-                   docker rm ci-container || true &&
-                   docker pull $DOCKER_IMAGE:latest &&
-                   docker run -d -p 8081:8080 --name ci-container $DOCKER_IMAGE:latest
-                   "
-                   """
+                    sh '''
+                    echo "Connecting to EC2..."
+                    ssh -o StrictHostKeyChecking=no ubuntu@$ec2_ip "
+ 
+                    echo 'Stopping old container'
+                    docker stop ci-container || true
+ 
+                    echo 'Removing old container'
+                    docker rm ci-container || true
+ 
+                    echo 'Pulling latest image'
+                    docker pull $DOCKER_IMAGE:latest
+ 
+                    echo 'Running container'
+                    docker run -d -p 8081:8080 --name ci-container $DOCKER_IMAGE:latest
+ 
+                    echo 'Done'
+                    "
+                    '''
                 }
-             }
+            }
         }
     }
     post {
