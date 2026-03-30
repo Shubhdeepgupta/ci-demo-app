@@ -40,14 +40,13 @@ pipeline {
                 }
              }
         }
-
-        post {
-            success {
-                echo 'Deployment Successful !!'
-            }
-            failure {
-                echo 'Deployment Failed !!'
-            }
+    }
+    post {
+        success {
+            echo 'Deployment Successful !!'
+        }
+        failure {
+            echo 'Deployment Failed !!'
         }
     }
 }
