@@ -1,45 +1,100 @@
 pipeline {
-
-    agent {label 'mac' }
-
+ 
+    agent { label 'mac' }
+ 
     environment {
+
         DOCKER_IMAGE = "shubhdeep06/ci-demo-app"
-        ec2_ip = "3.27.61.243"
+
+        EC2_IP = "3.27.61.243"
+
+    }
+ 
+    stages {
+ 
+        stage('Build JAR') {
+
+            steps {
+
+                sh 'mvn clean package'
+
+            }
+
+        }
+ 
+        stage('Build Docker Image') {
+
+            steps {
+
+                sh 'docker build -t $DOCKER_IMAGE:latest .'
+
+            }
+
+        }
+ 
+        stage('Push to DockerHub') {
+
+            steps {
+
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+
+                    sh '''
+
+                    echo $PASS | docker login -u $USER --password-stdin
+
+                    docker push $DOCKER_IMAGE:latest
+
+                    '''
+
+                }
+
+            }
+
+        }
+ 
+        stage('Deploy to EC2') {
+
+            steps {
+
+                sshagent(['ec2-key']) {
+
+                    sh '''
+
+                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "
+
+                    docker rm -f ci-container || true &&
+
+                    docker pull $DOCKER_IMAGE:latest &&
+
+                    docker run -d -p 8081:8080 --name ci-container $DOCKER_IMAGE:latest
+
+                    "
+
+                    '''
+
+                }
+
+            }
+
+        }
+
+    }
+ 
+    post {
+
+        success {
+
+            echo 'Deployment Successful 🚀'
+
+        }
+
+        failure {
+
+            echo 'Deployment Failed ❌'
+
+        }
+
     }
 
-    stages {
-        stage('Deploy to EC2') {
-            steps {
-                sshagent(['ec2-key']) {
-                    sh '''
-                    echo "Connecting to EC2..."
-                    ssh -o StrictHostKeyChecking=no ubuntu@$ec2_ip "
- 
-                    echo 'Stopping old container'
-                    docker stop ci-container || true
- 
-                    echo 'Removing old container'
-                    docker rm ci-container || true
- 
-                    echo 'Pulling latest image'
-                    docker pull $DOCKER_IMAGE:latest
- 
-                    echo 'Running container'
-                    docker run -d -p 8081:8080 --name ci-container $DOCKER_IMAGE:latest
- 
-                    echo 'Done'
-                    "
-                    '''
-                }
-            }
-        }
-    }
-    post {
-        success {
-            echo 'Deployment Successful !!'
-        }
-        failure {
-            echo 'Deployment Failed !!'
-        }
-    }
 }
+ 
