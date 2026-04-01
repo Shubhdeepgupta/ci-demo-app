@@ -26,8 +26,19 @@ pipeline {
 
             steps {
 
-                sh 'docker build -t $DOCKER_IMAGE:latest .'
+                sh '''
 
+                docker buildx create --use || true
+
+                docker buildx build \
+
+                --platform linux/amd64 \
+
+                -t $DOCKER_IMAGE:latest \
+
+                --push .
+
+                '''
             }
 
         }
