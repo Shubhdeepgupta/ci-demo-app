@@ -58,15 +58,7 @@ pipeline {
  
                     # Build for amd64 and push
 
-                    docker buildx build \
-
-                      --platform linux/amd64 \
-
-                      -t $DOCKER_IMAGE:latest \
-
-                      --push \
-
-                      .
+                    docker buildx build --platform linux/amd64 -t $DOCKER_IMAGE:latest --push .
 
                     '''
 
