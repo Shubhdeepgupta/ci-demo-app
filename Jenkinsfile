@@ -30,7 +30,7 @@ pipeline {
 
                 docker buildx create --use || true
 
-                docker buildx build \
+                docker buildx build -t $DOCKER_IMAGE:latest --load . \
 
                 --platform linux/amd64 \
 
